@@ -1,0 +1,20 @@
+{
+  "name": "heavybot",
+  "version": "1.0.0",
+  "description": "A discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nester",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "discord.js": "^11.4.2",
+    "google": "^2.1.0",
+    "google-images": "^2.1.0",
+    "mkdirp": "^0.5.1",
+    "nodemon": "^1.18.4",
+    "pg": "^7.6.1"
+  }
+}
