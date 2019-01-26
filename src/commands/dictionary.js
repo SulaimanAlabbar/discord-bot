@@ -1,8 +1,14 @@
 const axios = require("axios");
 
-async function dictionary({ msg, props }) {
+module.exports = async (msg, command) => {
+  if (command.length === 1 || command.length > 2 || !isNaN(command[1]))
+    return msg.channel.send(
+      `${msg.member}
+      ${"```"}Usage: ${process.env.PREFIX}dictionary <word>${"```"}`
+    );
+
   const BASE_URL = "https://googledictionaryapi.eu-gb.mybluemix.net/?define=";
-  const query = props[0];
+  const query = command[1];
   const URL = `${BASE_URL}${query}`;
   let nouns, adjectives, verbs;
 
@@ -83,12 +89,9 @@ ${
       });
     }
 
-    await msg.channel.send("===");
+    msg.channel.send("===");
   } catch (err) {
     console.log(err);
-    await msg.channel.send("Definition not found.");
-    return;
+    msg.channel.send("Definition not found.");
   }
-}
-
-module.exports = dictionary;
+};

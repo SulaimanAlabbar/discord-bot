@@ -1,30 +1,31 @@
-const botConfig = require("../../botConfig");
 const axios = require("axios");
 
-async function lyrics({ msg, command, props }) {
-  const bandAndSong = props.join(" ");
-  const indexOfSeperator = bandAndSong.indexOf("/");
+module.exports = async (msg, command) => {
+  const badInput = () =>
+    msg.channel.send(
+      `${msg.member}
+      ${"```"}Usage: ${process.env.PREFIX}lyrics <band> / <song>${"```"}`
+    );
+
+  if (command.length === 1) return badInput();
+
+  const bandAndSong = command
+    .slice(1)
+    .join(" ")
+    .split("/")
+    .map(str => str.trim());
+
+  if (bandAndSong.length !== 2) return badInput();
+
+  const band = bandAndSong[0];
+  const song = bandAndSong[1];
+
+  const BASE_URL = "http://www.darklyrics.com/";
+  const URL1 = `${BASE_URL}search?q=${(band + " " + song)
+    .split(" ")
+    .join("+")}`;
 
   try {
-    if (indexOfSeperator === -1) {
-      await msg.channel.send(
-        `${msg.author}
-${command.name} usage:${"```"}${botConfig.prefix}${command.usage}${"```"}${
-          command.name
-        } aliases: ${"```"}${command.aliases
-          .map(el => botConfig.prefix + el)
-          .join(" ")}${"```"}`
-      );
-      return;
-    }
-
-    const band = bandAndSong.slice(0, indexOfSeperator).trim();
-    const song = bandAndSong
-      .slice(indexOfSeperator + 1, bandAndSong.length)
-      .trim();
-    const BASE_URL = "http://www.darklyrics.com/";
-    const URL1 = `${BASE_URL}search?q=${song.split(" ").join("+")}`;
-
     const response1 = await axios.get(URL1);
     const result1 = response1.data
       .match(/Songs[\s\S]*/gms)
@@ -51,8 +52,6 @@ ${command.name} usage:${"```"}${botConfig.prefix}${command.usage}${"```"}${
       .replace(/<\/a>|<\/h3>|<br \/>|<i>|<\/i>/gms, "")
       .split("\n");
 
-    console.log(result2);
-
     const linesPerMessage = 15;
     let index = 0;
     await msg.channel.send("===");
@@ -67,12 +66,10 @@ ${command.name} usage:${"```"}${botConfig.prefix}${command.usage}${"```"}${
         index = index + linesPerMessage;
       }
     }
-    await msg.channel.send("===");
+    msg.channel.send("===");
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    await msg.channel.send("Lyrics not found.");
+    msg.channel.send("Lyrics not found.");
   }
-}
-
-module.exports = lyrics;
+};

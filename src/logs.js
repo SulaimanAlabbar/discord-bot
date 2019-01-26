@@ -1,15 +1,11 @@
-let constants = require("./constants");
 const fs = require("fs");
-const botConfig = require("../botConfig.json");
 const logsMessageFormatter = require("./logsMessageFormatter");
 
-async function logs(msg) {
-  if (!constants.logsReady) return;
-
+module.exports = async msg => {
   try {
     const loggedMessage = await logsMessageFormatter(msg);
     fs.writeFile(
-      `${botConfig.logsPath}/#${msg.channel.name}.txt`,
+      `${process.env.LOGS_PATH}/#${msg.channel.name}.txt`,
       loggedMessage,
       { flag: "a" },
       function(error) {
@@ -22,6 +18,4 @@ async function logs(msg) {
   } catch (error) {
     console.error(error);
   }
-}
-
-module.exports = logs;
+};

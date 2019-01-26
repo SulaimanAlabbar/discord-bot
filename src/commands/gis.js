@@ -1,32 +1,34 @@
 const { RichEmbed } = require("discord.js");
-const botConfig = require("../../botConfig.json");
 const GoogleImages = require("google-images");
 
-async function gim({ msg, props }) {
+module.exports = async (msg, command) => {
   function getRandom(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  if (command.length === 1)
+    return msg.channel.send(
+      `${msg.member}
+      ${"```"}Usage: ${process.env.PREFIX}images <search term>${"```"}`
+    );
+
   try {
     const client = new GoogleImages(
       "006656072422762840547:aanrhbakns4",
-      botConfig.googleApiKey
+      process.env.GOOGLE_API_KEY
     );
-    const query = props.join(" ");
+    const query = command.slice(1).join(" ");
     const response = await client.search(query);
-    if (response[0] === undefined || response.length === 0) {
-      await msg.channel.send("Couldn't find image.");
-      return;
-    }
+    if (response[0] === undefined || response.length === 0)
+      return msg.channel.send("Couldn't find image.");
+
     const embed = new RichEmbed().setImage(
       response[getRandom(0, response.length - 1)].url
     );
-    await msg.channel.send(embed);
+    msg.channel.send(embed);
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    await msg.channel.send("Couldn't find image.");
+    msg.channel.send("Couldn't find image.");
   }
-}
-
-module.exports = gim;
+};

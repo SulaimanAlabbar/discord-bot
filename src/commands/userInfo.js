@@ -1,16 +1,22 @@
 const { RichEmbed } = require("discord.js");
 
-async function userInfo({ msg, props }) {
+module.exports = async (msg, command) => {
+  if (command.length > 2)
+    return msg.channel.send(
+      `${msg.member}
+      ${"```"}Usage: ${process.env.PREFIX}userinfo <user>${"```"}`
+    );
+
   const userId =
-    props.length === 0
-      ? msg.author.id
-      : props[0][2] === "!"
-      ? props[0].slice(3, props[0].length - 1)
-      : props[0].slice(2, props[0].length - 1);
+    command.length === 1 ? msg.author.id : command[1].replace(/[<>@#!]/g, "");
 
   try {
-    const user = await msg.client.users.get(userId);
-    const guildMember = await msg.guild.members.get(userId);
+    const user = await msg.client.fetchUser(userId);
+    const guildMember = await msg.guild.fetchMember(userId);
+
+    if (!user || !guildMember)
+      return msg.channel.send("Couldn't get user's info");
+
     const name = `${guildMember.displayName}`;
     const tag = `${user.tag}`;
     const joinedServer = `${guildMember.joinedAt
@@ -33,22 +39,20 @@ async function userInfo({ msg, props }) {
 
     const roles = `${guildMember.roles.map(role => `${role.name}`).join(", ")}`;
 
-    const embed = new RichEmbed()
-      .addField("Name:", name, true)
-      .addField("Tag:", tag, true)
-      .addField("Joined Discord:", joinedDiscord, true)
-      .addField("Joined Server:", joinedServer, true)
-      .addField("Last Seen:", lastSeen, true)
-      .addField("Roles:", roles, true)
-      .setThumbnail(user.avatarURL)
-      .setColor(guildMember.displayHexColor);
-
-    await msg.channel.send(embed);
+    msg.channel.send(
+      new RichEmbed()
+        .addField("Name:", name, true)
+        .addField("Tag:", tag, true)
+        .addField("Joined Discord:", joinedDiscord, true)
+        .addField("Joined Server:", joinedServer, true)
+        .addField("Last Seen:", lastSeen, true)
+        .addField("Roles:", roles, true)
+        .setThumbnail(user.avatarURL)
+        .setColor(guildMember.displayHexColor)
+    );
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    await msg.channel.send("Couldn't get user's info");
+    msg.channel.send("Couldn't get user's info");
   }
-}
-
-module.exports = userInfo;
+};

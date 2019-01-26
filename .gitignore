@@ -1,5 +1,3 @@
 logs
 node_modules
-botConfig.json
-package-lock.json
-src/bible
+.env

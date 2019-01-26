@@ -14,7 +14,6 @@ const bible = require("./bible");
 const dice = require("./dice");
 const log = require("./log");
 const leaderboard = require("./leaderboard");
-const yt = require("./yt");
 
 module.exports.serverInfo = serverInfo;
 module.exports.userInfo = userInfo;
@@ -32,4 +31,3 @@ module.exports.bible = bible;
 module.exports.dice = dice;
 module.exports.log = log;
 module.exports.leaderboard = leaderboard;
-module.exports.yt = yt;

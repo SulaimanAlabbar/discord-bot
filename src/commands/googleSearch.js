@@ -1,7 +1,13 @@
 const google = require("google");
 
-async function googleSearch({ msg, props }) {
-  const query = `${props[0]} ${props[1]}`;
+module.exports = async (msg, command) => {
+  if (command.length === 1)
+    return msg.channel.send(
+      `${msg.member}
+      ${"```"}Usage: ${process.env.PREFIX}google <search terms>${"```"}`
+    );
+
+  const query = command.slice(1).join(" ");
   google.resultsPerPage = 2;
   var nextCounter = 0;
 
@@ -10,7 +16,7 @@ async function googleSearch({ msg, props }) {
       if (err) {
         console.log(new Date().toTimeString());
         console.error(err);
-        await msg.channel.send("Search didn't yield results.");
+        return msg.channel.send("Search didn't yield results.");
       }
 
       for (var i = 0; i < res.links.length; ++i) {
@@ -28,7 +34,6 @@ async function googleSearch({ msg, props }) {
   } catch (error) {
     console.log(new Date().toTimeString());
     console.error(error);
+    msg.channel.send("Search didn't yield results.");
   }
-}
-
-module.exports = googleSearch;
+};

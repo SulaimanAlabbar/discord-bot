@@ -1,32 +1,24 @@
-const constants = require("../constants");
 const { RichEmbed } = require("discord.js");
+const calculateLevel = require("../calculateLevel");
 
-async function leaderboard({ msg }) {
-  function sorter(a, b) {
-    return b.xp - a.xp;
-  }
-  if (!constants.databaseReady) {
-    await msg.channel.send(
-      "Database not yet loaded. Try again in a few seconds."
-    );
-    return;
-  }
+module.exports = async (msg, dbPool) => {
+  const client = await dbPool.connect();
 
   let members = [];
   const serverIcon = msg.guild.iconURL;
   let description = "";
   let symbols1 = [
-    "🐪",
     "🐵",
+    "🐪",
     "🦊",
-    "🐇",
-    "🐔",
     "🐸",
-    "🐴",
-    "🐶",
+    "🐔",
+    "🐇",
     "🐢",
+    "🐶",
     "🐷",
     "🐭",
+    "🐴",
     "🐘",
     "🦉",
     "🦅",
@@ -35,17 +27,19 @@ async function leaderboard({ msg }) {
   let symbols2 = "💩";
 
   try {
-    for (let i = 0; i < constants.membersXp.length; i++) {
-      const user = await msg.client.fetchUser(constants.membersXp[i].discordId);
+    const response = await client.query(
+      "select id, xp from stats order by xp desc limit 30;"
+    );
 
-      members.push({
-        name: user.username,
-        xp: constants.membersXp[i].xp,
-        level: constants.membersXp[i].level
+    for (let index = 0; index < response.rows.length; index++) {
+      let memberName = await msg.client.fetchUser(response.rows[index].id);
+
+      await members.push({
+        name: memberName.username,
+        xp: response.rows[index].xp,
+        level: calculateLevel(response.rows[index].xp)
       });
     }
-
-    members = members.sort(sorter);
 
     const indexOfKalvin = members.findIndex(
       member => member.name === "Deleted User 941f6ec8"
@@ -71,15 +65,15 @@ async function leaderboard({ msg }) {
       );
     }
 
-    const embed = new RichEmbed()
-      .setAuthor("Heavy Leaderboard", serverIcon)
-      .setDescription(description)
-      .setColor("#ffffff");
-
-    await msg.channel.send(embed);
+    msg.channel.send(
+      new RichEmbed()
+        .setAuthor("Heavy Leaderboard", serverIcon)
+        .setDescription(description)
+        .setColor("#ffffff")
+    );
   } catch (error) {
-    console.log(error);
+    console.error(error);
+  } finally {
+    client.release();
   }
-}
-
-module.exports = leaderboard;
+};

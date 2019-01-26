@@ -1,6 +1,6 @@
 const { RichEmbed } = require("discord.js");
 
-async function serverInfo({ msg }) {
+module.exports = async msg => {
   const serverName = `${msg.guild.name}`;
   const memberCount = `${msg.guild.memberCount}`;
   const creationDate = `${msg.guild.createdAt
@@ -13,16 +13,14 @@ async function serverInfo({ msg }) {
     .join(", ")}`;
   const region = `${msg.guild.region}`;
 
-  const embed = new RichEmbed()
-    .setTitle(serverName)
-    .addField("Creation Date:", creationDate, true)
-    .addField("Region:", region, true)
-    .addField("Members:", memberCount, true)
-    .addField("Channels:", textChannels, true)
-    .setThumbnail(msg.guild.iconURL)
-    .setColor(0xdd0000);
-
-  await msg.channel.send(embed);
-}
-
-module.exports = serverInfo;
+  msg.channel.send(
+    new RichEmbed()
+      .setTitle(serverName)
+      .addField("Creation Date:", creationDate, true)
+      .addField("Region:", region, true)
+      .addField("Members:", memberCount, true)
+      .addField("Channels:", textChannels, true)
+      .setThumbnail(msg.guild.iconURL)
+      .setColor(0xdd0000)
+  );
+};

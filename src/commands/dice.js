@@ -1,4 +1,4 @@
-async function dice({ msg }) {
+module.exports = async msg => {
   const diceResults = [
     ":one:",
     ":two:",
@@ -19,6 +19,4 @@ async function dice({ msg }) {
       6
     )}:game_die:\n:game_die::game_die::game_die:`
   );
-}
-
-module.exports = dice;
+};
