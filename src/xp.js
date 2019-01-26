@@ -15,6 +15,7 @@ module.exports = async (msg, dbPool) => {
   ];
 
   const client = await dbPool.connect();
+
   try {
     const response = await client.query(
       `INSERT INTO stats (id) VALUES ($1)
@@ -31,6 +32,7 @@ module.exports = async (msg, dbPool) => {
     const oldLevel = calculateLevel(response.rows[0].xp - 20);
 
     if (newLevel === oldLevel) return;
+
     let levelEmoji = "";
     newLevel
       .toString()

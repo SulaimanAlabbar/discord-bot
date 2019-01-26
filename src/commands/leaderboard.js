@@ -34,7 +34,7 @@ module.exports = async (msg, dbPool) => {
     for (let index = 0; index < response.rows.length; index++) {
       let memberName = await msg.client.fetchUser(response.rows[index].id);
 
-      await members.push({
+      members.push({
         name: memberName.username,
         xp: response.rows[index].xp,
         level: calculateLevel(response.rows[index].xp)
