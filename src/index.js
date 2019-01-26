@@ -4,6 +4,7 @@ require("winston-daily-rotate-file");
 const Discord = require("discord.js");
 const { RichEmbed } = require("discord.js");
 const fs = require("fs");
+const path = require("path");
 const { Pool } = require("pg");
 const xp = require("./xp");
 const logs = require("./logs");
