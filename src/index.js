@@ -1,10 +1,10 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 const { createLogger, format, transports } = require("winston");
 require("winston-daily-rotate-file");
 const Discord = require("discord.js");
 const { RichEmbed } = require("discord.js");
 const fs = require("fs");
-const path = require("path");
 const { Pool } = require("pg");
 const xp = require("./xp");
 const logs = require("./logs");
