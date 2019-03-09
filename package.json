@@ -6,28 +6,20 @@
   "scripts": {
     "dev": "./node_modules/nodemon/bin/nodemon.js ./src/index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SulaimanAlabbar/heavybot.git"
-  },
   "keywords": [],
   "author": "Nester",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/SulaimanAlabbar/heavybot/issues"
-  },
-  "homepage": "https://github.com/SulaimanAlabbar/heavybot#readme",
   "dependencies": {
     "axios": "^0.18.0",
     "discord.js": "^11.4.2",
     "dotenv": "^6.2.0",
     "google": "^2.1.0",
     "google-images": "^2.1.0",
-    "pg": "^7.8.0",
+    "pg": "^7.8.2",
     "title": "^3.4.1",
     "uws": "^9.148.0",
-    "winston": "^3.1.0",
-    "winston-daily-rotate-file": "^3.6.0"
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^3.8.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.10"

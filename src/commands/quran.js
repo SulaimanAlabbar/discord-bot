@@ -29,12 +29,16 @@ module.exports = async (msg, command) => {
 
   try {
     const response = await axios.get(URL);
+
+    if (response.data.data === undefined || response.data.data.length === 0)
+      throw { name: "customError", message: "Band not found." };
+
     msg.channel.send(
       `**Quran [${chapter}:${verse}]: **\n` + response.data.data.text
     );
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    msg.channel.send("Verse not found.");
+    if (error.name === "customError") msg.channel.send(error.message);
   }
 };

@@ -9,11 +9,11 @@ module.exports = async (msg, command) => {
 
   const formatter = str =>
     str
+      .toLowerCase()
       .trim()
       .replace(/[\.\ \:\-\'\!\,]/g, "_")
       .replace(/[_]+/g, "_")
-      .replace(/^[_]+|[_]+$/g, "")
-      .toLowerCase();
+      .replace(/^[_]+|[_]+$/g, "");
 
   if (command.length === 1) return badInput();
 
@@ -27,8 +27,7 @@ module.exports = async (msg, command) => {
     : command
         .slice(1)
         .join(" ")
-        .split("/")
-        .map(str => str.trim());
+        .split("/");
 
   if (!onlyBand && bandAndAlbum.length !== 2) return badInput();
 
@@ -41,7 +40,7 @@ module.exports = async (msg, command) => {
     ? `${BASE_URL}/${band}`
     : `${BASE_URL}/${band}/#${album}`;
   try {
-    const response = await axios.get(DLA_URL);
+    axios.get(DLA_URL);
     msg.channel.send(DLA_URL);
   } catch (error) {
     console.log(new Date().toTimeString());

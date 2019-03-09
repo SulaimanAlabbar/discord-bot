@@ -12,31 +12,30 @@ module.exports = async (msg, command) => {
   const BASE_URL = "http://api.urbandictionary.com/v0/define?term=";
   const query = command[1];
   const URL = `${BASE_URL}${query}`;
-  const definitionNum =
-    command.length === 2 || Number(command[2]) === 0 || Number(command[2]) === 1
-      ? 0
-      : Number(command[2]);
+  let definitionNum =
+    command.length === 2 || Number(command[2]) <= 1 ? 1 : Number(command[2]);
 
   try {
     const response = await axios.get(URL);
-    if (!response) return;
+    if (response.data.list === undefined || response.data.list.length === 0)
+      throw { name: "customError", message: "Definition not found." };
 
-    if (definitionNum > response.data.list.length || definitionNum < 0)
-      return msg.channel.send(`There is no definition #${definitionNum}`);
+    if (definitionNum > response.data.list.length)
+      definitionNum = response.data.list.length;
 
     const definition =
       `**Definition #${definitionNum} out of ${
         response.data.list.length
       }: **\n` +
-      response.data.list[definitionNum].definition +
-      (response.data.list[definitionNum].example !== ""
-        ? `\n\n**Example: **${response.data.list[definitionNum].example}`
+      response.data.list[definitionNum - 1].definition +
+      (response.data.list[definitionNum - 1].example !== ""
+        ? `\n\n**Example: **${response.data.list[definitionNum - 1].example}`
         : "");
 
     msg.channel.send(definition);
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    msg.channel.send("Definition not found.");
+    if (error.name === "customError") msg.channel.send(error.message);
   }
 };

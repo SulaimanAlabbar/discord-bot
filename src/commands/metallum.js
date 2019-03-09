@@ -17,6 +17,9 @@ module.exports = async (msg, command) => {
   try {
     const response = await axios.get(URL);
 
+    if (response.data.items === undefined || response.data.items.length === 0)
+      throw { name: "customError", message: "Band not found." };
+
     msg.channel.send(
       new RichEmbed()
         .setTitle(
@@ -32,6 +35,6 @@ module.exports = async (msg, command) => {
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    msg.channel.send("Band not found.");
+    if (error.name === "customError") msg.channel.send(error.message);
   }
 };

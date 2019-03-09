@@ -16,12 +16,12 @@ module.exports = async (msg, command) => {
   try {
     const response = await axios.get(URL);
     if (response.data.items === undefined || response.data.items.length === 0)
-      return msg.channel.send("Couldn't find video.");
+      throw { name: "customError", message: "Couldn't find video." };
 
     msg.channel.send(response.data.items[0].link);
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    msg.channel.send("Couldn't find video.");
+    if (error.name === "customError") msg.channel.send(error.message);
   }
 };

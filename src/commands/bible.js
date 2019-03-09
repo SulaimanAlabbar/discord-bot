@@ -49,10 +49,10 @@ module.exports = async (msg, command) => {
 
   let verseText;
 
-  if (bookAndChapterAndVerse.length === 2) {
-    if (isNaN(bookAndChapterAndVerse[0])) return badInput();
+  try {
+    if (bookAndChapterAndVerse.length === 2) {
+      if (isNaN(bookAndChapterAndVerse[0])) return badInput();
 
-    try {
       verseText =
         doctrine.sections[bookAndChapterAndVerse[0]] &&
         doctrine.sections[bookAndChapterAndVerse[0] - 1].verses[
@@ -62,28 +62,24 @@ module.exports = async (msg, command) => {
           bookAndChapterAndVerse[1] - 1
         ].text;
 
-      if (verseText === undefined) throw "Couldn't find section/verse";
+      if (verseText === undefined)
+        throw { name: "customError", message: "Couldn't find section/verse" };
 
       msg.channel.send(
         `${"**"}Bible [${bookAndChapterAndVerse[0]}:${
           bookAndChapterAndVerse[1]
         }]${"**"}\n${verseText}`
       );
-    } catch (error) {
-      console.log(new Date().toTimeString());
-      console.log(error);
-      msg.channel.send("Couldn't find section/verse");
+
+      return;
     }
-    return;
-  }
 
-  if (bookAndChapterAndVerse.length !== 3) badInput();
+    if (bookAndChapterAndVerse.length !== 3) badInput();
 
-  const book = title(bookAndChapterAndVerse[0]);
-  const chapter = bookAndChapterAndVerse[1];
-  const verse = bookAndChapterAndVerse[2];
+    const book = title(bookAndChapterAndVerse[0]);
+    const chapter = bookAndChapterAndVerse[1];
+    const verse = bookAndChapterAndVerse[2];
 
-  try {
     if (oldTest.bookNames.includes(book)) {
       const indexOfBook = oldTest.bookNames.indexOf(book);
 
@@ -118,7 +114,11 @@ module.exports = async (msg, command) => {
         pearl.books[indexOfBook].chapters[chapter - 1].verses[verse - 1].text;
     }
 
-    if (verseText === undefined) throw "Couldn't find book/chapter/verse";
+    if (verseText === undefined)
+      throw {
+        name: "customError",
+        message: "Couldn't find book/chapter/verse"
+      };
 
     msg.channel.send(
       `${"**"}Bible [${book}:${chapter}:${verse}]${"**"}\n${verseText}`
@@ -126,6 +126,6 @@ module.exports = async (msg, command) => {
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    msg.channel.send("Couldn't find book/chapter/verse");
+    if (error.name === "customError") msg.channel.send(error.message);
   }
 };

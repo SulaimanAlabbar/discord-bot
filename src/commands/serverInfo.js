@@ -1,6 +1,6 @@
 const { RichEmbed } = require("discord.js");
 
-module.exports = async msg => {
+module.exports = msg => {
   const serverName = `${msg.guild.name}`;
   const memberCount = `${msg.guild.memberCount}`;
   const creationDate = `${msg.guild.createdAt

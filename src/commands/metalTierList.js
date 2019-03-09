@@ -1,6 +1,6 @@
 const { RichEmbed } = require("discord.js");
 
-module.exports = async msg => {
+module.exports = msg => {
   msg.channel.send(
     new RichEmbed()
       .addField("Metal Tier List", process.env.MTL_SITE, false)

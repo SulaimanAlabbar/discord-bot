@@ -7,16 +7,19 @@ module.exports = async msg => {
     ":five:",
     ":six:"
   ];
-  function getRndInteger(min, max) {
-    return diceResults[Math.floor(Math.random() * (max - min + 1)) + min - 1];
+
+  function randomNum(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
   }
+
   await msg.channel.send("....:game_die:\t        :thinking:");
   await msg.channel.send("........:game_die:\t    :worried:");
   await msg.channel.send("............:game_die:\t:cold_sweat:");
   await msg.channel.send(
-    `:game_die::game_die::game_die:\n:game_die:${getRndInteger(
-      1,
-      6
-    )}:game_die:\n:game_die::game_die::game_die:`
+    `:game_die::game_die::game_die:\n:game_die:${
+      diceResults[randomNum(0, 6)]
+    }:game_die:\n:game_die::game_die::game_die:`
   );
 };

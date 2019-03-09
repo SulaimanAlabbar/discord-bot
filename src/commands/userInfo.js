@@ -15,7 +15,7 @@ module.exports = async (msg, command) => {
     const guildMember = await msg.guild.fetchMember(userId);
 
     if (!user || !guildMember)
-      return msg.channel.send("Couldn't get user's info");
+      throw { name: "customError", message: "Couldn't get user's info." };
 
     const name = `${guildMember.displayName}`;
     const tag = `${user.tag}`;
@@ -53,6 +53,6 @@ module.exports = async (msg, command) => {
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    msg.channel.send("Couldn't get user's info");
+    if (error.name === "customError") msg.channel.send(error.message);
   }
 };

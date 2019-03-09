@@ -57,7 +57,7 @@ module.exports = async (msg, command) => {
     await msg.channel.send("===");
     while (true) {
       if (index > result2.length - linesPerMessage) {
-        msg.channel.send(
+        await msg.channel.send(
           result2.slice(index, index + (result2.length - index))
         );
         break;

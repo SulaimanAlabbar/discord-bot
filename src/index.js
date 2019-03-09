@@ -1,56 +1,56 @@
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
-// const { createLogger, format, transports } = require("winston");
-// require("winston-daily-rotate-file");
+const { createLogger, format, transports } = require("winston");
+require("winston-daily-rotate-file");
 const Discord = require("discord.js");
 const { RichEmbed } = require("discord.js");
 const fs = require("fs");
 const { Pool } = require("pg");
 const xp = require("./xp");
 const logs = require("./logs");
-// const errorLogsDir = process.env.ERROR_LOGS_PATH;
+const errorLogsDir = process.env.ERROR_LOGS_PATH;
 const commands = require("./commands");
 const mosely = require("./mosely");
 
-// if (!fs.existsSync(process.env.LOGS_PATH)) {
-//   fs.mkdirSync(process.env.LOGS_PATH);
-// }
+if (!fs.existsSync(process.env.LOGS_PATH)) {
+  fs.mkdirSync(process.env.LOGS_PATH);
+}
 
-// if (!fs.existsSync(errorLogsDir)) {
-//   fs.mkdirSync(errorLogsDir);
-// }
+if (!fs.existsSync(errorLogsDir)) {
+  fs.mkdirSync(errorLogsDir);
+}
 
-// const filename = path.join(errorLogsDir, "results.log");
+const filename = path.join(errorLogsDir, "results.log");
 
-// const dailyRotateFileTransport = new transports.DailyRotateFile({
-//   filename: `${errorLogsDir}/%DATE%-results.log`,
-//   datePattern: "YYYY-MM-DD"
-// });
+const dailyRotateFileTransport = new transports.DailyRotateFile({
+  filename: `${errorLogsDir}/%DATE%-results.log`,
+  datePattern: "YYYY-MM-DD"
+});
 
-// const logger = createLogger({
-//   level: "info",
-//   format: format.combine(
-//     format.timestamp({
-//       format: "YYYY-MM-DD HH:mm:ss"
-//     }),
-//     format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
-//   ),
-//   transports: [new transports.File({ filename }), dailyRotateFileTransport]
-// });
+const logger = createLogger({
+  level: "info",
+  format: format.combine(
+    format.timestamp({
+      format: "YYYY-MM-DD HH:mm:ss"
+    }),
+    format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+  ),
+  transports: [new transports.File({ filename }), dailyRotateFileTransport]
+});
 
-// process.on("uncaughtException", error => {
-//   logger.log("error", error);
-//   process.exit(-1);
-// });
+process.on("uncaughtException", error => {
+  logger.log("error", error);
+  process.exit(-1);
+});
 
-// process.on("unhandledRejection", error => {
-//   logger.log("error", error);
-//   process.exit(-1);
-// });
+process.on("unhandledRejection", error => {
+  logger.log("error", error);
+  process.exit(-1);
+});
 
-// process.on("warning", warning => {
-//   logger.log("warning", warning);
-// });
+process.on("warning", warning => {
+  logger.log("warning", warning);
+});
 
 const dbPool = new Pool({
   host: process.env.DB_HOST,

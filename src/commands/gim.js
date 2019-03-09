@@ -17,13 +17,12 @@ module.exports = async (msg, command) => {
   try {
     const response = await client.search(query);
     if (response[0] === undefined || response.length === 0)
-      return await msg.channel.send("Couldn't find image.");
+      throw { name: "customError", message: "Couldn't find image." };
 
-    const embed = new RichEmbed().setImage(response[0].url);
-    msg.channel.send(embed);
+    msg.channel.send(new RichEmbed().setImage(response[0].url));
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    msg.channel.send("Couldn't find image.");
+    if (error.name === "customError") msg.channel.send(error.message);
   }
 };

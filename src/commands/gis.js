@@ -2,8 +2,10 @@ const { RichEmbed } = require("discord.js");
 const GoogleImages = require("google-images");
 
 module.exports = async (msg, command) => {
-  function getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  function randomNum(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
   }
 
   if (command.length === 1)
@@ -20,15 +22,14 @@ module.exports = async (msg, command) => {
     const query = command.slice(1).join(" ");
     const response = await client.search(query);
     if (response[0] === undefined || response.length === 0)
-      return msg.channel.send("Couldn't find image.");
+      throw { name: "customError", message: "Couldn't find image." };
 
-    const embed = new RichEmbed().setImage(
-      response[getRandom(0, response.length - 1)].url
+    msg.channel.send(
+      new RichEmbed().setImage(response[randomNum(0, response.length)].url)
     );
-    msg.channel.send(embed);
   } catch (error) {
     console.log(new Date().toTimeString());
     console.log(error);
-    msg.channel.send("Couldn't find image.");
+    if (error.name === "customError") msg.channel.send(error.message);
   }
 };

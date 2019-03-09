@@ -7,33 +7,24 @@ module.exports = async (msg, command) => {
       ${"```"}Usage: ${process.env.PREFIX}google <search terms>${"```"}`
     );
 
+  let results = "";
   const query = command.slice(1).join(" ");
-  google.resultsPerPage = 2;
+  google.resultsPerPage = 7;
   var nextCounter = 0;
 
-  try {
-    google(query, async function(err, res) {
-      if (err) {
-        console.log(new Date().toTimeString());
-        console.error(err);
-        return msg.channel.send("Search didn't yield results.");
-      }
+  google(query, (err, res) => {
+    if (err) {
+      console.log(new Date().toTimeString());
+      console.error(err);
+      return msg.channel.send("Search didn't yield results.");
+    }
 
-      for (var i = 0; i < res.links.length; ++i) {
-        var link = res.links[i];
-        if (link.href !== null && link.title !== null) {
-          await msg.channel.send(link.title + " - " + `<${link.href}>\n`);
-        }
+    for (var i = 0; i < res.links.length; ++i) {
+      var link = res.links[i];
+      if (link.href !== null && link.title !== null) {
+        results += `${link.title} - <${link.href}>\n`;
       }
-
-      if (nextCounter < 1) {
-        nextCounter += 1;
-        if (res.next) res.next();
-      }
-    });
-  } catch (error) {
-    console.log(new Date().toTimeString());
-    console.error(error);
-    msg.channel.send("Search didn't yield results.");
-  }
+      if (i + 1 === res.links.length) return msg.channel.send(results);
+    }
+  });
 };

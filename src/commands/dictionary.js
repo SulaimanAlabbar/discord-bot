@@ -1,5 +1,7 @@
 const axios = require("axios");
 
+//FIXME: It's broken
+
 module.exports = async (msg, command) => {
   if (command.length === 1 || command.length > 2 || !isNaN(command[1]))
     return msg.channel.send(
@@ -24,10 +26,8 @@ module.exports = async (msg, command) => {
               `**Definition #${index + 1}: ** ${el.definition}
 ${el.example !== undefined ? "    **Example: **" + el.example : ""}
 ${
-                el.synonyms !== undefined
-                  ? "    **Synonyms: **" + el.synonyms.join(", ")
-                  : ""
-              }
+  el.synonyms !== undefined ? "    **Synonyms: **" + el.synonyms.join(", ") : ""
+}
 `
           )
         : "";
@@ -39,10 +39,8 @@ ${
               `**Definition #${index + 1}: ** ${el.definition}
 ${el.example !== undefined ? "    **Example: **" + el.example : ""}
 ${
-                el.synonyms !== undefined
-                  ? "    **Synonyms: **" + el.synonyms.join(", ")
-                  : ""
-              }
+  el.synonyms !== undefined ? "    **Synonyms: **" + el.synonyms.join(", ") : ""
+}
 `
           )
         : "";
@@ -54,10 +52,8 @@ ${
               `**Definition #${index + 1}: ** ${el.definition}
 ${el.example !== undefined ? "    **Example: **" + el.example : ""}
 ${
-                el.synonyms !== undefined
-                  ? "    **Synonyms: **" + el.synonyms.join(", ")
-                  : ""
-              }
+  el.synonyms !== undefined ? "    **Synonyms: **" + el.synonyms.join(", ") : ""
+}
 `
           )
         : "";
