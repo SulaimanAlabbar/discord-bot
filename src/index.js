@@ -1,55 +1,56 @@
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
-const { createLogger, format, transports } = require("winston");
-require("winston-daily-rotate-file");
+// const { createLogger, format, transports } = require("winston");
+// require("winston-daily-rotate-file");
 const Discord = require("discord.js");
 const { RichEmbed } = require("discord.js");
 const fs = require("fs");
 const { Pool } = require("pg");
 const xp = require("./xp");
 const logs = require("./logs");
-const errorLogsDir = process.env.ERROR_LOGS_PATH;
+// const errorLogsDir = process.env.ERROR_LOGS_PATH;
 const commands = require("./commands");
+const mosely = require("./mosely");
 
-if (!fs.existsSync(process.env.LOGS_PATH)) {
-  fs.mkdirSync(process.env.LOGS_PATH);
-}
+// if (!fs.existsSync(process.env.LOGS_PATH)) {
+//   fs.mkdirSync(process.env.LOGS_PATH);
+// }
 
-if (!fs.existsSync(errorLogsDir)) {
-  fs.mkdirSync(errorLogsDir);
-}
+// if (!fs.existsSync(errorLogsDir)) {
+//   fs.mkdirSync(errorLogsDir);
+// }
 
-const filename = path.join(errorLogsDir, "results.log");
+// const filename = path.join(errorLogsDir, "results.log");
 
-const dailyRotateFileTransport = new transports.DailyRotateFile({
-  filename: `${errorLogsDir}/%DATE%-results.log`,
-  datePattern: "YYYY-MM-DD"
-});
+// const dailyRotateFileTransport = new transports.DailyRotateFile({
+//   filename: `${errorLogsDir}/%DATE%-results.log`,
+//   datePattern: "YYYY-MM-DD"
+// });
 
-const logger = createLogger({
-  level: "info",
-  format: format.combine(
-    format.timestamp({
-      format: "YYYY-MM-DD HH:mm:ss"
-    }),
-    format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
-  ),
-  transports: [new transports.File({ filename }), dailyRotateFileTransport]
-});
+// const logger = createLogger({
+//   level: "info",
+//   format: format.combine(
+//     format.timestamp({
+//       format: "YYYY-MM-DD HH:mm:ss"
+//     }),
+//     format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+//   ),
+//   transports: [new transports.File({ filename }), dailyRotateFileTransport]
+// });
 
-process.on("uncaughtException", error => {
-  logger.log("error", error);
-  process.exit(-1);
-});
+// process.on("uncaughtException", error => {
+//   logger.log("error", error);
+//   process.exit(-1);
+// });
 
-process.on("unhandledRejection", error => {
-  logger.log("error", error);
-  process.exit(-1);
-});
+// process.on("unhandledRejection", error => {
+//   logger.log("error", error);
+//   process.exit(-1);
+// });
 
-process.on("warning", warning => {
-  logger.log("warning", warning);
-});
+// process.on("warning", warning => {
+//   logger.log("warning", warning);
+// });
 
 const dbPool = new Pool({
   host: process.env.DB_HOST,
@@ -74,7 +75,10 @@ bot.on("message", msg => {
   logs(msg);
   if (msg.author.bot) return;
   xp(msg, dbPool);
+  mosely(msg);
   if (msg.content[0] !== process.env.PREFIX) return;
+  if (msg.content.length === 1) return;
+  if (!new RegExp("^[a-zA-Z]+").test(msg.content[1])) return;
 
   const command = msg.content.split(" ");
 
@@ -124,10 +128,10 @@ bot.on("message", msg => {
     case "q":
       commands.quran(msg, command);
       break;
-    // case "bible":
-    // case "b":
-    //   commands.bible(msg, command);
-    //   break;
+    case "bible":
+    case "b":
+      commands.bible(msg, command);
+      break;
     case "dice":
     case "die":
     case "roll":
@@ -139,6 +143,15 @@ bot.on("message", msg => {
     case "leaderboard":
     case "top":
       commands.leaderboard(msg, dbPool);
+      break;
+    case "dla":
+      commands.dla(msg, command);
+      break;
+    case "quote":
+      commands.quote(msg, command, dbPool);
+      break;
+    case "addquote":
+      commands.addQuote(msg, command, dbPool);
       break;
     default:
       msg.channel.send("Command does not exist.");
@@ -159,6 +172,17 @@ bot.on("guildMemberAdd", member => {
         .setThumbnail(member.guild.iconURL)
         .setColor(0xdd0000)
     );
+  } catch (error) {
+    console.log(new Date().toTimeString());
+    console.error(error);
+  }
+});
+
+bot.on("guildMemberRemove", member => {
+  try {
+    const channel = member.guild.channels.find(ch => ch.name === "main");
+    if (!channel) return;
+    channel.send(`**${member}** has left the server.`);
   } catch (error) {
     console.log(new Date().toTimeString());
     console.error(error);

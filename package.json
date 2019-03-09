@@ -4,7 +4,7 @@
   "description": "heavys discord bot",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "./node_modules/nodemon/bin/nodemon.js ./src/index.js"
   },
   "repository": {
     "type": "git",
@@ -23,10 +23,13 @@
     "dotenv": "^6.2.0",
     "google": "^2.1.0",
     "google-images": "^2.1.0",
-    "nodemon": "^1.18.9",
     "pg": "^7.8.0",
+    "title": "^3.4.1",
     "uws": "^9.148.0",
     "winston": "^3.1.0",
     "winston-daily-rotate-file": "^3.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
   }
 }
