@@ -22,9 +22,9 @@ module.exports = async (msg, dbPool) => {
     "🐘",
     "🦉",
     "🦅",
-    "🕊️"
+    "🦅
   ];
-  let symbols2 = "💩";
+  let symbols2 = "🕊️";
 
   try {
     const response = await client.query(
@@ -41,19 +41,6 @@ module.exports = async (msg, dbPool) => {
       });
     }
 
-    const indexOfKalvin = members.findIndex(
-      member => member.name === "Deleted User 941f6ec8"
-    );
-
-    members = [
-      ...members.slice(0, indexOfKalvin),
-      {
-        ...members[indexOfKalvin],
-        name: "Kalvin"
-      },
-      ...members.slice(indexOfKalvin + 1)
-    ];
-
     for (let index = 0; index < 30 && index < members.length; index++) {
       description = description.concat(
         `${"``"}
@@ -67,7 +54,7 @@ module.exports = async (msg, dbPool) => {
 
     msg.channel.send(
       new RichEmbed()
-        .setAuthor("Heavy Leaderboard", serverIcon)
+        .setAuthor("Leaderboard", serverIcon)
         .setDescription(description)
         .setColor("#ffffff")
     );

@@ -10,7 +10,6 @@ const xp = require("./xp");
 const logs = require("./logs");
 const errorLogsDir = process.env.ERROR_LOGS_PATH;
 const commands = require("./commands");
-const mosely = require("./mosely");
 
 if (!fs.existsSync(process.env.LOGS_PATH)) {
   fs.mkdirSync(process.env.LOGS_PATH);
@@ -68,14 +67,13 @@ dbPool.on("error", err => {
 const bot = new Discord.Client();
 
 bot.on("ready", () => {
-  console.log(`HeavyBot online.`);
+  console.log(`DiscordBot online.`);
 });
 
 bot.on("message", msg => {
   logs(msg);
   if (msg.author.bot) return;
   xp(msg, dbPool);
-  mosely(msg);
   if (msg.content[0] !== process.env.PREFIX) return;
   if (msg.content.length === 1) return;
   if (!new RegExp("^[a-zA-Z]+").test(msg.content[1])) return;
@@ -109,43 +107,14 @@ bot.on("message", msg => {
     case "d":
       commands.dictionary(msg, command);
       break;
-    case "urban":
-    case "u":
-      commands.urban(msg, command);
-      break;
-    case "mtl":
-      commands.metalTierList(msg);
-      break;
-    case "metallum":
-    case "m":
-      commands.metallum(msg, command);
-      break;
-    case "lyrics":
-    case "l":
-      commands.lyrics(msg, command);
-      break;
-    case "quran":
-    case "q":
-      commands.quran(msg, command);
-      break;
-    case "bible":
-    case "b":
-      commands.bible(msg, command);
-      break;
     case "dice":
     case "die":
     case "roll":
       commands.dice(msg);
       break;
-    // case "log":
-    //   commands.log(msg, command);
-    //   break;
     case "leaderboard":
     case "top":
       commands.leaderboard(msg, dbPool);
-      break;
-    case "dla":
-      commands.dla(msg, command);
       break;
     case "quote":
       commands.quote(msg, command, dbPool);
@@ -163,11 +132,9 @@ bot.on("guildMemberAdd", member => {
   try {
     const channel = member.guild.channels.find(ch => ch.name === "main");
     if (!channel) return;
-    channel.send(`Welcome to heavy, ${member}`);
+    channel.send(`Welcome, ${member}`);
     channel.send(
       new RichEmbed()
-        .addField("Metal Tier List", process.env.MTL_SITE, false)
-        .addField("Download link", process.env.MTL_DOWNLOAD, false)
         .setImage(process.env.MTL_IMAGE)
         .setThumbnail(member.guild.iconURL)
         .setColor(0xdd0000)
