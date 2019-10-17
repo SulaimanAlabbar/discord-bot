@@ -1,4 +1,19 @@
-logs
-error-logs
-node_modules
+# Project specific
+/node_modules/
+/logs/
+/coverage/
 .env
+.migrate
+
+# Other
+*.log
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.idea
+*.iml
+.vscode
+*.swp
+*.swo
+*~
+*.pyc

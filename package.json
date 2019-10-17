@@ -1,27 +1,97 @@
 {
-  "name": "heavybot",
-  "version": "1.0.0",
-  "description": "heavys discord bot",
+  "name": "discord-bot",
+  "version": "2.0.0",
+  "description": "Discord bot",
   "main": "index.js",
-  "scripts": {
-    "dev": "./node_modules/nodemon/bin/nodemon.js ./src/index.js"
-  },
-  "keywords": [],
-  "author": "Nester",
+  "author": "sulaiman1073",
   "license": "MIT",
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "scripts": {
+    "start": "cross-env NODE_ENV=development node ./src/index.js",
+    "devserver": "cross-env NODE_ENV=development nodemon ./src/index.js",
+    "production": "cross-env NODE_ENV=production node ./src/index.js",
+    "prettier": "prettier \"./src/**/*.+(js|json|yml|yaml|ts|tsx|md|mdx|graphql)\"",
+    "unprettified": "npm run prettier -- --list-different",
+    "format": "npm run prettier -- --write",
+    "lint": "eslint ./src/ -c ./.eslintrc --ext js",
+    "fix": "eslint ./src/ --fix",
+    "validate": "run-p lint unprettified",
+    "test": "cross-env NODE_ENV=testing jest --runInBand",
+    "test-watch": "cross-env NODE_ENV=testing jest --watch --runInBand",
+    "test-watchall": "cross-env NODE_ENV=testing jest --watchAll --runInBand",
+    "coverage": "cross-env NODE_ENV=testing jest --coverage",
+    "migrate-create": "node ./tools/migrate.js create",
+    "migrate-list": "node ./tools/migrate.js list",
+    "migrate-up": "node ./tools/migrate.js up",
+    "migrate-down": "node ./tools/migrate.js down",
+    "db-create": "node ./tools/createDb.js",
+    "db-drop": "node ./tools/dropDb.js",
+    "db-reset": "run-s migrate-down migrate-up"
+  },
   "dependencies": {
-    "axios": "^0.18.0",
-    "discord.js": "^11.4.2",
-    "dotenv": "^6.2.0",
-    "google": "^2.1.0",
-    "google-images": "^2.1.0",
-    "pg": "^7.8.2",
+    "axios": "^0.19.0",
+    "bluebird": "^3.5.5",
+    "cross-env": "^5.2.1",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.1.0",
+    "jest": "^24.9.0",
+    "knex": "^0.19.3",
+    "l0gg3r": "^0.6.1",
+    "migrate": "^1.6.2",
+    "pg": "^7.12.1",
+    "pg-error-codes": "^1.1.0",
+    "relative": "^3.0.2",
     "title": "^3.4.1",
-    "uws": "^9.148.0",
-    "winston": "^3.2.1",
-    "winston-daily-rotate-file": "^3.8.0"
+    "uws": "^100.0.1"
   },
   "devDependencies": {
-    "nodemon": "^1.18.10"
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.3",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-eslint-comments": "^3.1.2",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^22.16.0",
+    "eslint-plugin-node": "^9.2.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "husky": "^3.0.5",
+    "jest-watch-typeahead": "^0.3.1",
+    "lint-staged": "^9.2.5",
+    "nodemon": "^1.19.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.18.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ],
+    "collectCoverageFrom": [
+      "<rootDir>/src/**/*.js"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "./src/**/*.{js}": [
+      "npm run format",
+      "npm run fix",
+      "cross-env NODE_ENV=testing jest --runInBand --findRelatedTests",
+      "git add"
+    ]
   }
 }

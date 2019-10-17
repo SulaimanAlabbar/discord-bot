@@ -1,25 +1,29 @@
 const serverInfo = require("./serverInfo");
 const userInfo = require("./userInfo");
 const googleSearch = require("./googleSearch");
-const gim = require("./gim");
-const gis = require("./gis");
+const googleImage = require("./googleImage");
 const youtube = require("./youtube");
 const dictionary = require("./dictionary");
+const urban = require("./urban");
 const dice = require("./dice");
-const log = require("./log");
 const leaderboard = require("./leaderboard");
 const quote = require("./quote");
 const addQuote = require("./addQuote");
+const addMemberAlias = require("./addMemberAlias");
+const listMemberAliases = require("./listMemberAliases");
 
-module.exports.serverInfo = serverInfo;
-module.exports.userInfo = userInfo;
-module.exports.googleSearch = googleSearch;
-module.exports.gim = gim;
-module.exports.gis = gis;
-module.exports.youtube = youtube;
-module.exports.dictionary = dictionary;
-module.exports.dice = dice;
-module.exports.log = log;
-module.exports.leaderboard = leaderboard;
-module.exports.quote = quote;
-module.exports.addQuote = addQuote;
+module.exports = {
+  serverInfo,
+  userInfo,
+  googleSearch,
+  googleImage,
+  youtube,
+  dictionary,
+  urban,
+  quote,
+  addQuote,
+  leaderboard,
+  addMemberAlias,
+  listMemberAliases,
+  dice
+};

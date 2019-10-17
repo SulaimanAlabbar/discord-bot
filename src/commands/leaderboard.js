@@ -1,66 +1,51 @@
 const { RichEmbed } = require("discord.js");
-const calculateLevel = require("../calculateLevel");
+const { CommandError } = require("../helpers/errors");
+const getXp = require("../database/queries/getXp");
+const calculateLevel = require("../util/calculateLevel");
 
-module.exports = async (msg, dbPool) => {
-  const client = await dbPool.connect();
-
-  let members = [];
-  const serverIcon = msg.guild.iconURL;
-  let description = "";
-  let symbols1 = [
-    "🐵",
-    "🐪",
-    "🦊",
-    "🐸",
-    "🐔",
-    "🐇",
-    "🐢",
-    "🐶",
-    "🐷",
-    "🐭",
-    "🐴",
-    "🐘",
-    "🦉",
-    "🦅",
-    "🦅
-  ];
-  let symbols2 = "🕊️";
-
+module.exports = async msg => {
   try {
-    const response = await client.query(
-      "select id, xp from stats order by xp desc limit 30;"
-    );
+    const xps = await getXp({ serverId: msg.guild.id });
 
-    for (let index = 0; index < response.rows.length; index++) {
-      let memberName = await msg.client.fetchUser(response.rows[index].id);
-
-      members.push({
-        name: memberName.username,
-        xp: response.rows[index].xp,
-        level: calculateLevel(response.rows[index].xp)
-      });
+    if (!xps) {
+      await msg.channel.send("Couldn't return leaderboard.");
+      return;
     }
 
-    for (let index = 0; index < 30 && index < members.length; index++) {
-      description = description.concat(
-        `${"``"}
-        ${index < 9 ? `0${index + 1}` : `${index + 1}`} ${
-          index <= 14 ? symbols1[index] : symbols2
-        } ➤ ${members[index].name} | Level: ${members[index].level} | XP: ${
-          members[index].xp
-        }${"``"}\n`
+    const header = [
+      `${"```py\n"}Rank | Member                 | LvL | XP${"```"}`
+    ];
+
+    const board = xps
+      .map((xp, index) => {
+        const level = calculateLevel(xp.xp).toString();
+        const newXp = xp.xp.toString();
+        const name =
+          xp.member.length > 20 ? `${xp.member.slice(0, 17)}...` : xp.member;
+        return {
+          rank: index < 9 ? `0${index + 1}` : `${index + 1}`,
+          xp: newXp.length === 7 ? newXp : newXp + " ".repeat(7 - level.length),
+          level:
+            level.length === 3 ? level : level + " ".repeat(3 - level.length),
+          name: name.length === 20 ? name : name + " ".repeat(20 - name.length)
+        };
+      })
+      .map(
+        row =>
+          `${"```py\n"} ${row.rank} ➤ ${row.name}${" ".repeat(
+            22 - row.name.length
+          )} | ${row.level} | ${row.xp} ${"```"}`
       );
-    }
 
-    msg.channel.send(
+    const leaderBoard = [header, board.join("")].join("");
+
+    await msg.channel.send(
       new RichEmbed()
-        .setAuthor("Leaderboard", serverIcon)
-        .setDescription(description)
+        .setAuthor("Leaderboard", msg.guild.iconURL)
+        .setDescription(leaderBoard)
         .setColor("#ffffff")
     );
   } catch (error) {
-    console.error(error);
-  } finally {
-    client.release();
+    throw new CommandError("Couldn't return leaderboard.", error);
   }
 };

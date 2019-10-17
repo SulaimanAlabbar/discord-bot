@@ -1,30 +1,35 @@
-const google = require("google");
+const axios = require("axios");
+const { prefix } = require("../config");
+const { CommandError } = require("../helpers/errors");
+const config = require("../config");
 
-module.exports = async (msg, command) => {
-  if (command.length === 1)
-    return msg.channel.send(
+module.exports = async (msg, args) => {
+  if (args.length === 0) {
+    await msg.channel.send(
       `${msg.member}
-      ${"```"}Usage: ${process.env.PREFIX}google <search terms>${"```"}`
+      ${"```"}Usage: ${prefix}google search_terms${"```"}`
     );
+    return;
+  }
 
-  let results = "";
-  const query = command.slice(1).join(" ");
-  google.resultsPerPage = 7;
-  var nextCounter = 0;
+  const baseUrl = "https://www.googleapis.com/customsearch/v1?q=";
+  const query = args.join("+");
+  const apiKey = config.googleSearchApiKey;
+  const apiCx = config.googleSearchApiCx;
+  const URL = `${baseUrl}${query}&key=${apiKey}&cx=${apiCx}&num=5`;
 
-  google(query, (err, res) => {
-    if (err) {
-      console.log(new Date().toTimeString());
-      console.error(err);
-      return msg.channel.send("Search didn't yield results.");
-    }
+  try {
+    const response = await axios.get(URL);
+    const { items } = response.data;
 
-    for (var i = 0; i < res.links.length; ++i) {
-      var link = res.links[i];
-      if (link.href !== null && link.title !== null) {
-        results += `${link.title} - <${link.href}>\n`;
-      }
-      if (i + 1 === res.links.length) return msg.channel.send(results);
-    }
-  });
+    await msg.channel.send(`
+${items[0].title}: <${items[0].link}>
+${items[1].title}: <${items[1].link}>
+${items[2].title}: <${items[2].link}>
+${items[3].title}: <${items[3].link}>
+${items[4].title}: <${items[4].link}>
+    `);
+  } catch (error) {
+    throw new CommandError("Search didn't yield results.", error);
+  }
 };

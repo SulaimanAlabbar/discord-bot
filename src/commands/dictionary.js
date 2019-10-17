@@ -1,93 +1,37 @@
 const axios = require("axios");
+const { prefix } = require("../config");
+const config = require("../config");
+const { CommandError } = require("../helpers/errors");
 
-//FIXME: It's broken
-
-module.exports = async (msg, command) => {
-  if (command.length === 1 || command.length > 2 || !isNaN(command[1]))
-    return msg.channel.send(
+module.exports = async (msg, args) => {
+  if (args.length !== 1) {
+    await msg.channel.send(
       `${msg.member}
-      ${"```"}Usage: ${process.env.PREFIX}dictionary <word>${"```"}`
+      ${"```"}Usage: ${prefix}dictionary word${"```"}`
     );
+    return;
+  }
 
-  const BASE_URL = "https://googledictionaryapi.eu-gb.mybluemix.net/?define=";
-  const query = command[1];
-  const URL = `${BASE_URL}${query}`;
-  let nouns, adjectives, verbs;
+  const baseUrl = "https://od-api.oxforddictionaries.com/api/v2/entries/en-us";
+  const word = args.join().toLowerCase();
+  const apiKey = config.dictionaryApiKey;
+  const appId = config.dictionaryAppId;
+  const URL = `${baseUrl}/${word}`;
 
   try {
-    const response = await axios.get(URL);
+    const response = await axios.get(URL, {
+      headers: {
+        app_id: appId,
+        app_key: apiKey
+      }
+    });
 
-    if (!response) return;
+    const definitions = response.data.results[0].lexicalEntries[0].entries[0].senses.map(
+      (sense, index) => `${index + 1}) ${sense.definitions[0]}`
+    );
 
-    nouns =
-      response.data.meaning.noun !== undefined
-        ? response.data.meaning.noun.map(
-            (el, index) =>
-              `**Definition #${index + 1}: ** ${el.definition}
-${el.example !== undefined ? "    **Example: **" + el.example : ""}
-${
-  el.synonyms !== undefined ? "    **Synonyms: **" + el.synonyms.join(", ") : ""
-}
-`
-          )
-        : "";
-
-    adjectives =
-      response.data.meaning.adjective !== undefined
-        ? response.data.meaning.adjective.map(
-            (el, index) =>
-              `**Definition #${index + 1}: ** ${el.definition}
-${el.example !== undefined ? "    **Example: **" + el.example : ""}
-${
-  el.synonyms !== undefined ? "    **Synonyms: **" + el.synonyms.join(", ") : ""
-}
-`
-          )
-        : "";
-
-    verbs =
-      response.data.meaning.verb !== undefined
-        ? response.data.meaning.verb.map(
-            (el, index) =>
-              `**Definition #${index + 1}: ** ${el.definition}
-${el.example !== undefined ? "    **Example: **" + el.example : ""}
-${
-  el.synonyms !== undefined ? "    **Synonyms: **" + el.synonyms.join(", ") : ""
-}
-`
-          )
-        : "";
-
-    //NOUNS
-    if (nouns.length !== 0) {
-      await msg.channel.send("===\n**Nouns:**\n===");
-
-      nouns.forEach(async noun => {
-        await msg.channel.send(noun + "\n");
-      });
-    }
-
-    //ADJECTIVES
-    if (adjectives.length !== 0) {
-      await msg.channel.send("===\n**Adjectives:**\n===");
-
-      adjectives.forEach(async adjective => {
-        await msg.channel.send(adjective + "\n");
-      });
-    }
-
-    //VERBS
-    if (verbs.length !== 0) {
-      await msg.channel.send("===\n**Verbs:**\n===");
-
-      verbs.forEach(async verb => {
-        await msg.channel.send(verb + "\n");
-      });
-    }
-
-    msg.channel.send("===");
-  } catch (err) {
-    console.log(err);
-    msg.channel.send("Definition not found.");
+    await msg.channel.send(definitions);
+  } catch (error) {
+    throw new CommandError("Couldn't find definition.", error);
   }
 };

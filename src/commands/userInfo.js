@@ -1,43 +1,34 @@
 const { RichEmbed } = require("discord.js");
+const { prefix } = require("../config");
+const { CommandError } = require("../helpers/errors");
 
-module.exports = async (msg, command) => {
-  if (command.length > 2)
-    return msg.channel.send(
+module.exports = async (msg, args) => {
+  if (args.length > 1) {
+    await msg.channel.send(
       `${msg.member}
-      ${"```"}Usage: ${process.env.PREFIX}userinfo <user>${"```"}`
+      ${"```"}Usage: ${prefix}userinfo @user${"```"}`
     );
+    return;
+  }
 
   const userId =
-    command.length === 1 ? msg.author.id : command[1].replace(/[<>@#!]/g, "");
+    args.length === 0 ? msg.author.id : args[0].replace(/[<@#!&>]/g, "");
 
   try {
-    const user = await msg.client.fetchUser(userId);
-    const guildMember = await msg.guild.fetchMember(userId);
+    const discordUser = await msg.client.fetchUser(userId);
+    const guildMember = await msg.guild.member(userId);
 
-    if (!user || !guildMember)
-      throw { name: "customError", message: "Couldn't get user's info." };
-
-    const name = `${guildMember.displayName}`;
-    const tag = `${user.tag}`;
-    const joinedServer = `${guildMember.joinedAt
-      .toString()
-      .split(" ")
-      .slice(0, 5)
-      .join(" ")}`;
-    const joinedDiscord = `${user.createdAt
-      .toString()
-      .split(" ")
-      .slice(0, 5)
-      .join(" ")}`;
-    let lastSeen = guildMember.lastMessage
-      ? `${guildMember.lastMessage.createdAt
-          .toString()
-          .split(" ")
-          .slice(0, 5)
-          .join(" ")}`
+    const name = guildMember.displayName;
+    const { tag } = discordUser;
+    const joinedServer = new Date(guildMember.joinedAt).toDateString();
+    const joinedDiscord = new Date(discordUser.createdAt).toDateString();
+    const lastSeen = guildMember.lastMessage
+      ? new Date(guildMember.lastMessage.createdAt).toDateString()
       : "¯\\_(ツ)_/¯";
-
-    const roles = `${guildMember.roles.map(role => `${role.name}`).join(", ")}`;
+    const lastMessage = guildMember.lastMessage
+      ? `https://discordapp.com/channels/${msg.guild.id}/${guildMember.lastMessage.channel.id}/${guildMember.lastMessage.id}`
+      : "¯\\_(ツ)_/¯";
+    const roles = guildMember.roles.map(role => role.name).join(", ");
 
     msg.channel.send(
       new RichEmbed()
@@ -47,12 +38,11 @@ module.exports = async (msg, command) => {
         .addField("Joined Server:", joinedServer, true)
         .addField("Last Seen:", lastSeen, true)
         .addField("Roles:", roles, true)
-        .setThumbnail(user.avatarURL)
+        .addField("Last Message:", lastMessage, true)
+        .setThumbnail(discordUser.avatarURL)
         .setColor(guildMember.displayHexColor)
     );
   } catch (error) {
-    console.log(new Date().toTimeString());
-    console.log(error);
-    if (error.name === "customError") msg.channel.send(error.message);
+    throw new CommandError("Couldn't get user's info.", error);
   }
 };

@@ -1,48 +1,44 @@
-module.exports = async (msg, command, dbPool) => {
-  const badInput = () =>
-    msg.channel.send(
+const { prefix } = require("../config");
+const { CommandError } = require("../helpers/errors");
+const addQuote = require("../database/queries/addQuote");
+const getMemberAliases = require("../database/queries/getMemberAliases");
+
+module.exports = async (msg, args) => {
+  const badInput = async () => {
+    await msg.channel.send(
       `${msg.member}
-    ${"```"}Usage: 
-${process.env.PREFIX}addquote @user "quote"
-${"```"}`
+      ${"```"}Usage: ${prefix}addquote @user quote${"```"}`
     );
+  };
 
-  const cmnd = [...command]
-    .slice(1)
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .split(" ");
+  if (args.length < 2) return badInput();
 
-  if (cmnd.length < 2) return badInput();
-
-  const user = cmnd[0].replace(/[<>@#!]/g, "");
-  let quote = cmnd.slice(1).join(" ");
-
-  if (quote[0] !== '"' || quote[quote.length - 1] !== '"') return badInput();
-
-  quote = quote.slice(1, -1);
-
-  const client = await dbPool.connect();
+  let user = args[0].replace(/[<@#!&>]/g, "");
+  const quote = args.slice(1).join(" ");
 
   try {
-    const response = await client.query(
-      `INSERT INTO quotes(member_id, quote) 
-        SELECT CAST($1 as VARCHAR), $2
-        from stats s where s.id = $1
-        ON CONFLICT (member_id, quote) DO NOTHING returning quote;`,
-      [user, quote]
-    );
+    const memberId = await getMemberAliases({
+      serverId: msg.guild.id,
+      alias: user
+    });
 
-    if (response.rows.length === 0)
-      throw { name: "customError", message: "Couldn't add quote." };
+    if (memberId) {
+      user = memberId;
+    }
 
-    msg.channel.send("Quote added.");
+    const addedQuote = await addQuote({
+      serverId: msg.guild.id,
+      memberId: user,
+      quote
+    });
+
+    if (!addedQuote) {
+      await msg.channel.send("Didn't add quote.");
+      return;
+    }
+
+    await msg.channel.send("Quote added.");
   } catch (error) {
-    console.log(new Date().toTimeString());
-    console.error(error);
-    if (error.name === "customError") msg.channel.send(error.message);
-  } finally {
-    client.release();
+    throw new CommandError("Couldn't add quote.", error);
   }
 };

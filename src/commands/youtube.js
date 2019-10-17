@@ -1,27 +1,27 @@
 const axios = require("axios");
+const config = require("../config");
+const { prefix } = require("../config");
+const { CommandError } = require("../helpers/errors");
 
-module.exports = async (msg, command) => {
-  if (command.length === 1)
+module.exports = async (msg, args) => {
+  if (args.length === 0)
     return msg.channel.send(
       `${msg.member}
-      ${"```"}Usage: ${process.env.PREFIX}youtube <search terms>${"```"}`
+      ${"```"}Usage: ${prefix}youtube search_terms${"```"}`
     );
 
-  const BASE_URL = "https://www.googleapis.com/customsearch/v1?q=";
-  const cx = "006656072422762840547:kixui82vfbg";
-  const API_KEY = process.env.GOOGLE_API_KEY;
-  const query = command.slice(1).join("+");
-  const URL = `${BASE_URL}${query}&cx=${cx}&num=1&key=${API_KEY}`;
+  const baseUrl = "https://www.googleapis.com/customsearch/v1?q=";
+  const query = args.join("+");
+  const apiKey = config.googleSearchApiKey;
+  const apiCx = config.googleYoutubeApiCx;
+  const URL = `${baseUrl}${query}&key=${apiKey}&cx=${apiCx}&num=1`;
 
   try {
     const response = await axios.get(URL);
-    if (response.data.items === undefined || response.data.items.length === 0)
-      throw { name: "customError", message: "Couldn't find video." };
+    const video = response.data.items[0].link;
 
-    msg.channel.send(response.data.items[0].link);
+    await msg.channel.send(video);
   } catch (error) {
-    console.log(new Date().toTimeString());
-    console.log(error);
-    if (error.name === "customError") msg.channel.send(error.message);
+    throw new CommandError("Couldn't find video.", error);
   }
 };
