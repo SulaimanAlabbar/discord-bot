@@ -35,7 +35,7 @@
     "db-reset": "run-s migrate-down migrate-up"
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bluebird": "^3.5.5",
     "cross-env": "^5.2.1",
     "discord.js": "^11.5.1",
